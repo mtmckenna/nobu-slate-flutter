@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'models/slate_colors.dart';
+import 'models/slate_data.dart';
+import 'widgets/slate_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   runApp(const NobuSlateApp());
 }
 
@@ -11,25 +20,13 @@ class NobuSlateApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: 'Nobu Slate',
-      home: SmokeScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
-class SmokeScreen extends StatelessWidget {
-  const SmokeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Text(
-          'Nobu Slate — M1 smoke screen',
-          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+      home: Scaffold(
+        body: SlateScreen(
+          data: SlateData.defaults,
+          colors: SlateColors.markWhite,
         ),
       ),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
