@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'models/slate_colors.dart';
@@ -13,17 +14,39 @@ void main() async {
   runApp(const NobuSlateApp());
 }
 
-class NobuSlateApp extends StatelessWidget {
+class NobuSlateApp extends StatefulWidget {
   const NobuSlateApp({super.key});
 
   @override
+  State<NobuSlateApp> createState() => _NobuSlateAppState();
+}
+
+class _NobuSlateAppState extends State<NobuSlateApp> {
+  SlateData _data = SlateData.defaults;
+
+  void _onUpdate(SlateData next) {
+    setState(() => _data = next);
+  }
+
+  void _onEdit(String field) {
+    developer.log('edit: $field', name: 'slate');
+  }
+
+  void _onMark() {
+    developer.log('mark!', name: 'slate');
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Nobu Slate',
       home: Scaffold(
         body: SlateScreen(
-          data: SlateData.defaults,
+          data: _data,
           colors: SlateColors.markWhite,
+          onUpdate: _onUpdate,
+          onEdit: _onEdit,
+          onMark: _onMark,
         ),
       ),
       debugShowCheckedModeBanner: false,

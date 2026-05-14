@@ -23,4 +23,22 @@ class SlateData {
     audioChannelL: 'Lav',
     audioChannelR: 'Boom',
   );
+
+  SlateData copyWith({
+    String? title,
+    String? scene,
+    String? take,
+    String? audioFile,
+    String? audioChannelL,
+    String? audioChannelR,
+  }) {
+    return SlateData(
+      title: title ?? this.title,
+      scene: scene ?? this.scene,
+      take: take ?? this.take,
+      audioFile: audioFile ?? this.audioFile,
+      audioChannelL: audioChannelL ?? this.audioChannelL,
+      audioChannelR: audioChannelR ?? this.audioChannelR,
+    );
+  }
 }
