@@ -26,7 +26,7 @@ Ship a Flutter rebuild of Nobu Slate that:
 ## 3. Non-goals
 
 - New features (theme picker, multiple slates, cloud sync, etc.) — out of scope for the v1 release on both platforms.
-- Tests at parity with the existing Jest + Detox suites — we'll add a thin smoke test only.
+- ~~Tests at parity with the existing Jest + Detox suites — we'll add a thin smoke test only.~~ **Revised:** add a slim end-to-end suite via Flutter's built-in `integration_test` (one happy-path scenario covering all user flows) plus unit tests for `swipe_math.dart`. Total ~2–3 hours; payback is regression coverage as M4/M5/M6 evolve. The original Jest + Detox setup remains out of scope (not porting its structure, just its coverage intent).
 - Android-specific UI affordances (back gesture handling beyond default, Material 3 theming, tablet-specific layouts) — ship the iPad layout 1:1 on Android tablets and accept the cosmetic gap for v1.
 
 ## 4. User-facing behavior (parity spec)
@@ -74,6 +74,24 @@ While `countingDown` is true, additional marks are ignored.
 ### 4.4 Persistence
 
 All six editable fields (`title`, `scene`, `take`, `audioFile`, `audioChannelL`, `audioChannelR`) are persisted to local storage on every edit. Initial values default to `'Title' / '1' / '1' / '001' / 'Lav' / 'Boom'`.
+
+Implementation details from the original `slate-storage.js`:
+- Single storage key `SLATE_PROPS` holds a JSON blob of all six fields.
+- On app start, load and fall back to defaults if null.
+- On every `updateValue`, `value.trim()` is applied before saving — leading/trailing whitespace is stripped silently.
+
+### 4.7 Edit screen behavior
+
+When any field is tapped, the slate is **replaced** by a full-screen edit view (not an overlay). The original `App.js` switches between `<Slate>` and `<EditBox>` based on a single `state.editing` field — not a modal overlay, a route-style swap.
+
+The edit view contains a single `TextField` with:
+- `autoFocus: true` — keyboard appears immediately.
+- On submit (Done button on iOS keyboard / equivalent on Android): save the trimmed value, return to slate.
+- The TextField shows the current value as its initial text so the user can edit-in-place.
+
+### 4.8 AudioFile is free text, not a number
+
+Despite the default `'001'` suggesting numeric, the AudioFile field accepts arbitrary text via the same edit modal as every other field. Swipe inc/dec applies the standard `\d+[A-Z]?` parsing — if the current value matches that shape, swipes work; otherwise swipes are a no-op and the user is expected to use tap-to-edit.
 
 ### 4.5 Date/time box
 
@@ -196,9 +214,10 @@ Each spike is a small, throwaway Flutter app (or dart_test) that answers one of 
 4. **M4 — Mark action + audio (½ day).** Wire S2 result into `Beeper`. Verify color flashes and audio cadence on physical iPad and physical Android device. This is where the deferred S2 hardware ear test happens — if either platform sounds wrong, fall back to the concatenated-buffer approach before moving on.
 5. **M5 — Edit screen + persistence (½ day).** `EditScreen` text field; `shared_preferences` save on done, load on boot.
 6. **M6 — Icon, splash, store metadata (1 day).** `flutter_launcher_icons` for both. iOS: `PrivacyInfo.xcprivacy` privacy manifest (required since 2024), `Info.plist` polish. Android: adaptive icon, store screenshots, `build.gradle` versioning, app signing setup.
-7. **M7 — TestFlight + internal Play track + submissions (variable).** iOS: archive, upload to TestFlight, internal test on physical iPad, submit. Android: build app bundle, upload to Play Console internal testing track, internal test on a physical Android tablet, submit for review.
+7. **M6.5 — Tests (½ day).** Unit tests for `swipe_math.dart` (7+ assertions covering number, letter, padding, edge cases). One `integration_test` scenario covering all user flows end-to-end (renders, tap-to-edit each field, swipe inc/dec, horizontal-swipe-mark, persistence across restart). Not blocking M7 but should land before final submission.
+8. **M7 — TestFlight + internal Play track + submissions (variable).** iOS: archive, upload to TestFlight, internal test on physical iPad, submit. Android: build app bundle, upload to Play Console internal testing track, internal test on a physical Android tablet, submit for review.
 
-Total estimate: **4–5 working days** assuming spikes don't reveal a deal-breaker (was 3–4 for iOS-only; +½ to 1 day for Android-specific store work, packaging, and device testing).
+Total estimate: **4.5–5.5 working days** assuming spikes don't reveal a deal-breaker (was 3–4 for iOS-only; +½ to 1 day for Android-specific store work, packaging, and device testing; +½ day for the test suite).
 
 ---
 
