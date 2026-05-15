@@ -44,6 +44,7 @@ class SlateScreen extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: GestureDetector(
+                  key: const ValueKey('title'),
                   onTap: () => onEdit('title'),
                   behavior: HitTestBehavior.opaque,
                   child: TitleBar(title: data.title, colors: colors),
@@ -57,6 +58,7 @@ class SlateScreen extends StatelessWidget {
                     DoubleBox(children: [
                       Expanded(
                         child: BoxWithSwipe(
+                          key: const ValueKey('scene'),
                           label: 'Scene',
                           value: data.scene,
                           colors: colors,
@@ -66,6 +68,7 @@ class SlateScreen extends StatelessWidget {
                       ),
                       Expanded(
                         child: BoxWithSwipe(
+                          key: const ValueKey('take'),
                           label: 'Take',
                           value: data.take,
                           colors: colors,
@@ -92,6 +95,7 @@ class SlateScreen extends StatelessWidget {
                     DoubleBox(children: [
                       Expanded(
                         child: BoxWithSwipe(
+                          key: const ValueKey('audioFile'),
                           label: 'Audio File',
                           value: data.audioFile,
                           colors: colors,
