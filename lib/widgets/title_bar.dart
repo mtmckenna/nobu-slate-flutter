@@ -13,7 +13,6 @@ class TitleBar extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 5, left: 5),
       color: const Color(0xFF000000),
-      constraints: const BoxConstraints(minHeight: 60),
       padding: const EdgeInsets.all(5),
       child: FittedValue(
         title,

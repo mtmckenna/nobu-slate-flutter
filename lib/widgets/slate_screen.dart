@@ -41,13 +41,16 @@ class SlateScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              GestureDetector(
-                onTap: () => onEdit('title'),
-                behavior: HitTestBehavior.opaque,
-                child: TitleBar(title: data.title, colors: colors),
+              Expanded(
+                flex: 1,
+                child: GestureDetector(
+                  onTap: () => onEdit('title'),
+                  behavior: HitTestBehavior.opaque,
+                  child: TitleBar(title: data.title, colors: colors),
+                ),
               ),
               Expanded(
-                flex: 2,
+                flex: 5,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -82,7 +85,7 @@ class SlateScreen extends StatelessWidget {
                 ),
               ),
               Expanded(
-                flex: 1,
+                flex: 3,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
