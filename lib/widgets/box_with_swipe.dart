@@ -3,7 +3,10 @@ import '../models/slate_colors.dart';
 import '../services/swipe_math.dart';
 import 'value_box.dart';
 
-class BoxWithSwipe extends StatelessWidget {
+// Matches MIN_VERTICAL_SWIPE_LENGTH from the original swipe-functions.js.
+const _minVerticalSwipe = 5.0;
+
+class BoxWithSwipe extends StatefulWidget {
   final String label;
   final String value;
   final SlateColors colors;
@@ -19,21 +22,37 @@ class BoxWithSwipe extends StatelessWidget {
     required this.onTap,
   });
 
-  void _handleVerticalDrag(DragEndDetails details) {
-    final v = details.primaryVelocity ?? 0;
-    if (v == 0) return;
-    final direction = v < 0 ? 1 : -1;
-    final newValue = swipeValue(value, direction);
-    if (newValue != value) onChange(newValue);
+  @override
+  State<BoxWithSwipe> createState() => _BoxWithSwipeState();
+}
+
+class _BoxWithSwipeState extends State<BoxWithSwipe> {
+  double _dy = 0;
+
+  void _onStart(DragStartDetails _) => _dy = 0;
+
+  void _onUpdate(DragUpdateDetails d) => _dy += d.delta.dy;
+
+  void _onEnd(DragEndDetails _) {
+    if (_dy.abs() < _minVerticalSwipe) return;
+    final direction = _dy < 0 ? 1 : -1; // upward drag => increment
+    final next = swipeValue(widget.value, direction);
+    if (next != widget.value) widget.onChange(next);
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      onVerticalDragEnd: _handleVerticalDrag,
+      onTap: widget.onTap,
+      onVerticalDragStart: _onStart,
+      onVerticalDragUpdate: _onUpdate,
+      onVerticalDragEnd: _onEnd,
       behavior: HitTestBehavior.opaque,
-      child: ValueBox(label: label, value: value, colors: colors),
+      child: ValueBox(
+        label: widget.label,
+        value: widget.value,
+        colors: widget.colors,
+      ),
     );
   }
 }
