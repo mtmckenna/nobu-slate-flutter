@@ -7,12 +7,16 @@ class AudioChannelsBox extends StatelessWidget {
   final String left;
   final String right;
   final SlateColors colors;
+  final VoidCallback onEditLeft;
+  final VoidCallback onEditRight;
 
   const AudioChannelsBox({
     super.key,
     required this.left,
     required this.right,
     required this.colors,
+    required this.onEditLeft,
+    required this.onEditRight,
   });
 
   @override
@@ -25,8 +29,20 @@ class AudioChannelsBox extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(child: FittedValue('L: $left', color: colors.font)),
-            Expanded(child: FittedValue('R: $right', color: colors.font)),
+            Expanded(
+              child: GestureDetector(
+                onTap: onEditLeft,
+                behavior: HitTestBehavior.opaque,
+                child: FittedValue('L: $left', color: colors.font),
+              ),
+            ),
+            Expanded(
+              child: GestureDetector(
+                onTap: onEditRight,
+                behavior: HitTestBehavior.opaque,
+                child: FittedValue('R: $right', color: colors.font),
+              ),
+            ),
           ],
         ),
       ),

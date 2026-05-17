@@ -1,10 +1,11 @@
 import 'dart:async';
-import 'dart:developer' as developer;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'models/slate_colors.dart';
 import 'models/slate_data.dart';
 import 'services/beeper.dart';
+import 'services/slate_storage.dart';
+import 'widgets/edit_screen.dart';
 import 'widgets/slate_screen.dart';
 
 void main() async {
@@ -27,12 +28,17 @@ class _NobuSlateAppState extends State<NobuSlateApp> {
   SlateData _data = SlateData.defaults;
   SlateColors _colors = SlateColors.markWhite;
   bool _isMarking = false;
+  String? _editingField;
   final Beeper _beeper = Beeper();
 
   @override
   void initState() {
     super.initState();
     _beeper.preload();
+    loadSlateData().then((loaded) {
+      if (!mounted) return;
+      setState(() => _data = loaded);
+    });
   }
 
   @override
@@ -41,12 +47,24 @@ class _NobuSlateAppState extends State<NobuSlateApp> {
     super.dispose();
   }
 
-  void _onUpdate(SlateData next) {
-    setState(() => _data = next);
+  void _onEdit(String field) {
+    setState(() => _editingField = field);
   }
 
-  void _onEdit(String field) {
-    developer.log('edit: $field', name: 'slate');
+  void _onEditDone(String value) {
+    final field = _editingField;
+    if (field == null) return;
+    final next = _data.withField(field, value);
+    setState(() {
+      _data = next;
+      _editingField = null;
+    });
+    saveSlateData(next);
+  }
+
+  void _onSwipeUpdate(SlateData next) {
+    setState(() => _data = next);
+    saveSlateData(next);
   }
 
   void _onMark() {
@@ -79,16 +97,23 @@ class _NobuSlateAppState extends State<NobuSlateApp> {
 
   @override
   Widget build(BuildContext context) {
+    final editing = _editingField;
     return MaterialApp(
       title: 'Nobu Slate',
       home: Scaffold(
-        body: SlateScreen(
-          data: _data,
-          colors: _colors,
-          onUpdate: _onUpdate,
-          onEdit: _onEdit,
-          onMark: _onMark,
-        ),
+        body: editing != null
+            ? EditScreen(
+                field: editing,
+                initialValue: _data.fieldValue(editing),
+                onDone: _onEditDone,
+              )
+            : SlateScreen(
+                data: _data,
+                colors: _colors,
+                onUpdate: _onSwipeUpdate,
+                onEdit: _onEdit,
+                onMark: _onMark,
+              ),
       ),
       debugShowCheckedModeBanner: false,
     );

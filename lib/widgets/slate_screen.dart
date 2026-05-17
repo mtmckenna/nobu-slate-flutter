@@ -78,11 +78,7 @@ class SlateScreen extends StatelessWidget {
                       ),
                     ]),
                     Expanded(
-                      child: GestureDetector(
-                        onTap: () => onEdit('dateTime'),
-                        behavior: HitTestBehavior.opaque,
-                        child: DateTimeBox(colors: colors),
-                      ),
+                      child: DateTimeBox(colors: colors),
                     ),
                   ],
                 ),
@@ -106,14 +102,12 @@ class SlateScreen extends StatelessWidget {
                       ),
                     ]),
                     Expanded(
-                      child: GestureDetector(
-                        onTap: () => onEdit('audioChannels'),
-                        behavior: HitTestBehavior.opaque,
-                        child: AudioChannelsBox(
-                          left: data.audioChannelL,
-                          right: data.audioChannelR,
-                          colors: colors,
-                        ),
+                      child: AudioChannelsBox(
+                        left: data.audioChannelL,
+                        right: data.audioChannelR,
+                        colors: colors,
+                        onEditLeft: () => onEdit('audioChannelL'),
+                        onEditRight: () => onEdit('audioChannelR'),
                       ),
                     ),
                   ],

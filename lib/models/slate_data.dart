@@ -41,4 +41,62 @@ class SlateData {
       audioChannelR: audioChannelR ?? this.audioChannelR,
     );
   }
+
+  String fieldValue(String field) {
+    switch (field) {
+      case 'title':
+        return title;
+      case 'scene':
+        return scene;
+      case 'take':
+        return take;
+      case 'audioFile':
+        return audioFile;
+      case 'audioChannelL':
+        return audioChannelL;
+      case 'audioChannelR':
+        return audioChannelR;
+      default:
+        return '';
+    }
+  }
+
+  SlateData withField(String field, String value) {
+    switch (field) {
+      case 'title':
+        return copyWith(title: value);
+      case 'scene':
+        return copyWith(scene: value);
+      case 'take':
+        return copyWith(take: value);
+      case 'audioFile':
+        return copyWith(audioFile: value);
+      case 'audioChannelL':
+        return copyWith(audioChannelL: value);
+      case 'audioChannelR':
+        return copyWith(audioChannelR: value);
+      default:
+        return this;
+    }
+  }
+
+  factory SlateData.fromJson(Map<String, dynamic> j) => SlateData(
+        title: j['title'] as String? ?? defaults.title,
+        scene: j['scene'] as String? ?? defaults.scene,
+        take: j['take'] as String? ?? defaults.take,
+        audioFile: j['audioFile'] as String? ?? defaults.audioFile,
+        audioChannelL:
+            j['audioChannelL'] as String? ?? defaults.audioChannelL,
+        audioChannelR:
+            j['audioChannelR'] as String? ?? defaults.audioChannelR,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'scene': scene,
+        'take': take,
+        'audioFile': audioFile,
+        'audioChannelL': audioChannelL,
+        'audioChannelR': audioChannelR,
+      };
 }

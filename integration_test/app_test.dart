@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nobu_slate/main.dart' as app;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+  });
 
   // Resolve a Text widget showing the given (trimmed) value inside the
   // BoxWithSwipe identified by `keyName`. FittedValue wraps the text in
@@ -92,13 +97,76 @@ void main() {
     app.main();
     await tester.pumpAndSettle();
 
-    // Mark gesture is wired but visual/audio effect lands in M4. For now,
-    // assert the gesture is handled (no exception, app still rendered).
     await tester.fling(find.byKey(const ValueKey('scene')),
         const Offset(300, 0), 1000);
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(boxHasValue(tester, 'scene', '1'), true,
         reason: 'horizontal swipe should not have changed scene value');
+
+    // Let the 1.5s mark sequence finish before the test tears down.
+    await tester.pump(const Duration(milliseconds: 1600));
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('tap Scene opens edit screen, submit updates value',
+      (tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('scene')));
+    await tester.pumpAndSettle();
+
+    final field = find.byType(TextField);
+    expect(field, findsOneWidget);
+
+    await tester.enterText(field, '42');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(TextField), findsNothing);
+    expect(boxHasValue(tester, 'scene', '42'), true);
+  });
+
+  testWidgets('edited value trims whitespace and persists across restart',
+      (tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('title')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byType(TextField), '  Handcuff Hands  ');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    final titleTexts = find.descendant(
+      of: find.byKey(const ValueKey('title')),
+      matching: find.byType(Text),
+    );
+    expect(
+      titleTexts
+          .evaluate()
+          .any((e) => (e.widget as Text).data?.trim() == 'Handcuff Hands'),
+      true,
+      reason: 'leading/trailing whitespace should be trimmed',
+    );
+
+    // Relaunch from scratch; persisted value should load.
+    await tester.pumpWidget(const SizedBox());
+    app.main();
+    await tester.pumpAndSettle();
+
+    final reloaded = find.descendant(
+      of: find.byKey(const ValueKey('title')),
+      matching: find.byType(Text),
+    );
+    expect(
+      reloaded
+          .evaluate()
+          .any((e) => (e.widget as Text).data?.trim() == 'Handcuff Hands'),
+      true,
+      reason: 'value should persist across app restart',
+    );
   });
 }
