@@ -237,6 +237,8 @@ Simulator audio is not authoritative — Mac CoreAudio differs from iPad audio p
 
 **Decision:** proceed with `just_audio` on both platforms.
 
+**S2 GATE CLEARED (2026-05-18, physical iPhone 15 Pro, iOS 26.4.2, `--release` build).** Ear test on real hardware: the on-screen flash and the beep cadence land tight — no perceptible drift between the color flash and the audio across repeated marks; cold-start first mark is clean. `just_audio` with preloaded assets holds sync acceptably on-device. The concatenated-buffer fallback (option 3) is NOT needed. The go/no-go gate is satisfied; the project is cleared to proceed to submission. iPad + Android hardware re-confirmation still nice-to-have but no longer blocking.
+
 **Minor finding:** `SystemChrome.setPreferredOrientations([landscape...])` logs a warning on iPadOS 26 simulator ("current windowing mode does not allow for programmatic changes to interface orientation") because iPad multitasking ignores the runtime call. The fix for parity is to declare supported orientations in `Info.plist` (`UISupportedInterfaceOrientations` = LandscapeLeft + LandscapeRight only) on iOS, plus `android:screenOrientation="landscape"` on `MainActivity` in `AndroidManifest.xml`. Carry into M1.
 
 ### S3 — FittedBox text layout
