@@ -12,11 +12,11 @@ class TitleBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 5, left: 5),
-      color: const Color(0xFF000000),
+      color: colors.foreground,
       padding: const EdgeInsets.all(5),
       child: FittedValue(
         title,
-        color: const Color(0xFFFFFFFF),
+        color: colors.font,
       ),
     );
   }
