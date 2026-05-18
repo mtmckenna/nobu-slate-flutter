@@ -22,7 +22,11 @@ class ValueBox extends StatelessWidget {
       colors: colors,
       child: Padding(
         padding: const EdgeInsets.all(5),
-        child: FittedValue(value, color: colors.font),
+        child: FittedValue(
+          value,
+          color: colors.font,
+          align: TextAlign.center,
+        ),
       ),
     );
   }
