@@ -2,7 +2,7 @@ name: nobu_slate
 description: "Nobu Slate — a film/video digital slate (clapperboard)."
 publish_to: 'none'
 
-version: 3.0.0+1
+version: 3.0.0+2
 
 environment:
   sdk: ^3.11.5
