@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No Budget Slate</title>
+<meta name="description" content="A dead-simple film/video slate for iOS and iPad. Scene, take, audio file, and a frame-accurate mark for syncing sound to picture in post.">
+<style>
+  :root { --fg:#fff; --bg:#000; --red:#cc0000; --green:#339933; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { background:var(--bg); color:var(--fg);
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; }
+  body { max-width:960px; margin:0 auto; padding:48px 24px 80px; }
+  header { text-align:center; padding:40px 0 56px; }
+  h1 { font-size:clamp(40px,9vw,96px); font-weight:700; letter-spacing:-0.02em; }
+  .tag { margin-top:16px; font-size:clamp(16px,2.6vw,22px); color:#aaa; }
+
+  .slate { border:2px solid #222; border-radius:6px; overflow:hidden;
+    aspect-ratio:4/3; max-width:560px; margin:0 auto 56px;
+    display:flex; flex-direction:column; }
+  .slate .title { flex:1; display:flex; align-items:center;
+    justify-content:center; font-size:clamp(36px,8vw,72px); font-weight:700;
+    border-bottom:2px solid #222; }
+  .slate .row { flex:1.4; display:flex; }
+  .slate .cell { flex:1; display:flex; flex-direction:column;
+    justify-content:center; padding:14px; border-right:2px solid #222; }
+  .slate .cell:last-child { border-right:0; }
+  .slate .lbl { font-size:11px; color:#888; text-transform:uppercase;
+    letter-spacing:0.08em; }
+  .slate .val { font-size:clamp(28px,6vw,52px); font-weight:700; }
+  .slate .dt { font-size:clamp(13px,2.4vw,18px); font-weight:600; line-height:1.4; }
+
+  section { margin:0 auto 48px; max-width:680px; }
+  h2 { font-size:24px; margin-bottom:12px; font-weight:700; }
+  p { color:#ccc; line-height:1.6; font-size:17px; }
+  ul { color:#ccc; line-height:1.7; font-size:17px; margin:12px 0 0 20px; }
+
+  .cta { text-align:center; margin-top:56px; }
+  .cta a { display:inline-block; border:2px solid var(--fg); color:var(--fg);
+    text-decoration:none; padding:14px 28px; font-weight:700; border-radius:6px; }
+  .cta a:hover { background:var(--fg); color:var(--bg); }
+  footer { text-align:center; margin-top:72px; color:#666; font-size:13px; }
+  footer a { color:#888; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>No Budget Slate</h1>
+    <p class="tag">A dead-simple digital slate for film &amp; video.</p>
+  </header>
+
+  <div class="slate" aria-hidden="true">
+    <div class="title">Title</div>
+    <div class="row">
+      <div class="cell"><span class="lbl">Scene</span><span class="val">14</span></div>
+      <div class="cell"><span class="lbl">Take</span><span class="val">3</span></div>
+      <div class="cell"><span class="lbl">Date/Time</span><span class="dt">2026-05-18<br>11:48:02</span></div>
+    </div>
+    <div class="row">
+      <div class="cell"><span class="lbl">Audio File</span><span class="val">001</span></div>
+      <div class="cell"><span class="lbl">Audio Channels</span><span class="dt">L: Lav<br>R: Boom</span></div>
+    </div>
+  </div>
+
+  <section>
+    <h2>What it does</h2>
+    <p>Scene, take, audio file, and audio-channel labels on a single
+    landscape screen. Swipe a horizontal stroke anywhere and it flashes
+    red&nbsp;&rarr;&nbsp;green while playing a two-beep cadence &mdash; a
+    frame-accurate reference so an editor can line audio up to picture
+    in post.</p>
+  </section>
+
+  <section>
+    <h2>How to use it</h2>
+    <ul>
+      <li>Tap any field to edit it.</li>
+      <li>Swipe a field up or down to increment / decrement it.</li>
+      <li>Swipe horizontally anywhere to mark &mdash; flash + beeps.</li>
+      <li>Everything you set is saved automatically.</li>
+    </ul>
+  </section>
+
+  <div class="cta">
+    <a href="#" id="appstore">Download on the App&nbsp;Store</a>
+  </div>
+
+  <footer>
+    Rebuilt in Flutter, 2026 &middot;
+    <a href="https://github.com/mtmckenna/nobu-slate-flutter">Source on GitHub</a>
+  </footer>
+</body>
+</html>
