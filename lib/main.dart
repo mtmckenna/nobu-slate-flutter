@@ -8,6 +8,13 @@ import 'services/slate_storage.dart';
 import 'widgets/edit_screen.dart';
 import 'widgets/slate_screen.dart';
 
+// Mark cadence (per design doc design/sharper-mark.md).
+// Audio events at t=0 and t=_markIntervalMs define the editor's sync
+// pins; the color flash is a sharp blip at each (single-frame at 24fps).
+const _flashDurationMs = 50;
+const _markIntervalMs = 1000;
+const _markCooldownMs = 50;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
@@ -75,24 +82,34 @@ class _NobuSlateAppState extends State<NobuSlateApp> {
     });
     _beeper.beep();
 
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: _flashDurationMs), () {
       if (!mounted) return;
       setState(() => _colors = SlateColors.markWhite);
     });
 
-    Future.delayed(const Duration(milliseconds: 1000), () {
+    Future.delayed(const Duration(milliseconds: _markIntervalMs), () {
       if (!mounted) return;
       setState(() => _colors = SlateColors.markGreen);
       _beeper.beepFinal();
     });
 
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (!mounted) return;
-      setState(() {
-        _colors = SlateColors.markWhite;
-        _isMarking = false;
-      });
-    });
+    Future.delayed(
+      const Duration(milliseconds: _markIntervalMs + _flashDurationMs),
+      () {
+        if (!mounted) return;
+        setState(() => _colors = SlateColors.markWhite);
+      },
+    );
+
+    Future.delayed(
+      const Duration(
+        milliseconds: _markIntervalMs + _flashDurationMs + _markCooldownMs,
+      ),
+      () {
+        if (!mounted) return;
+        setState(() => _isMarking = false);
+      },
+    );
   }
 
   @override

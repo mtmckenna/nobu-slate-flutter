@@ -35,6 +35,7 @@ class SlateScreen extends StatelessWidget {
       onHorizontalDragEnd: _handleHorizontalDrag,
       behavior: HitTestBehavior.opaque,
       child: Container(
+        key: const ValueKey('slate-root'),
         color: colors.background,
         padding: const EdgeInsets.only(right: 5, bottom: 5),
         child: SafeArea(

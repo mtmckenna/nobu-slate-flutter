@@ -4,6 +4,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nobu_slate/main.dart' as app;
+import 'package:nobu_slate/models/slate_colors.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,13 @@ void main() {
         .evaluate()
         .map((e) => (e.widget as Text).data?.trim())
         .contains(expected);
+  }
+
+  // Read the live background color of the slate root Container.
+  Color? slateBg(WidgetTester tester) {
+    final el = tester.element(find.byKey(const ValueKey('slate-root')));
+    final c = (el.widget as Container).color;
+    return c;
   }
 
   testWidgets('renders defaults', (tester) async {
@@ -168,5 +176,88 @@ void main() {
       true,
       reason: 'value should persist across app restart',
     );
+  });
+
+  // ---- Sharper mark (PR #1 / design/sharper-mark.md) ----
+
+  testWidgets('mark RED flash is brief (~50ms then white)', (tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    expect(slateBg(tester), SlateColors.markWhite.background,
+        reason: 'pre-mark baseline');
+
+    // Fire horizontal swipe → mark.
+    await tester.fling(
+      find.byKey(const ValueKey('scene')),
+      const Offset(300, 0),
+      1000,
+    );
+    // Inside the 50ms flash window.
+    await tester.pump(const Duration(milliseconds: 20));
+    expect(slateBg(tester), SlateColors.markRed.background,
+        reason: 'RED should be showing inside the 50ms flash window');
+
+    // Past the 50ms flash window, before the 1000ms cadence.
+    await tester.pump(const Duration(milliseconds: 80)); // total ~100ms
+    expect(slateBg(tester), SlateColors.markWhite.background,
+        reason: 'should be back to WHITE between RED and GREEN');
+
+    // Wait out the rest of the cadence so the test tears down cleanly.
+    await tester.pump(const Duration(milliseconds: 1100));
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('mark GREEN flash is brief at ~t=1000ms', (tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    await tester.fling(
+      find.byKey(const ValueKey('scene')),
+      const Offset(300, 0),
+      1000,
+    );
+    // Inside the GREEN flash window (1000–1050ms).
+    await tester.pump(const Duration(milliseconds: 1010));
+    expect(slateBg(tester), SlateColors.markGreen.background,
+        reason: 'GREEN should be showing just after t=1000ms');
+
+    // Past the GREEN flash window.
+    await tester.pump(const Duration(milliseconds: 80)); // total ~1090ms
+    expect(slateBg(tester), SlateColors.markWhite.background,
+        reason: 'should be back to WHITE after the GREEN flash');
+
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('re-mark is blocked during cadence', (tester) async {
+    app.main();
+    await tester.pumpAndSettle();
+
+    // First mark → into cadence.
+    await tester.fling(
+      find.byKey(const ValueKey('scene')),
+      const Offset(300, 0),
+      1000,
+    );
+    // Past the 50ms RED flash, in the white gap before the green.
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(slateBg(tester), SlateColors.markWhite.background,
+        reason: 'baseline: in the white gap between RED and GREEN');
+
+    // Try to fire a second mark; should be ignored because _isMarking=true.
+    await tester.fling(
+      find.byKey(const ValueKey('scene')),
+      const Offset(300, 0),
+      1000,
+    );
+    await tester.pump(const Duration(milliseconds: 20));
+    // If the second mark were honored it would have set RED again.
+    expect(slateBg(tester), SlateColors.markWhite.background,
+        reason: 'second swipe mid-cadence must not restart the sequence');
+
+    // Wait out the full cadence so the test tears down cleanly.
+    await tester.pump(const Duration(milliseconds: 1500));
+    await tester.pumpAndSettle();
   });
 }
