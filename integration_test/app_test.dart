@@ -180,7 +180,7 @@ void main() {
 
   // ---- Sharper mark (PR #1 / design/sharper-mark.md) ----
 
-  testWidgets('mark RED flash is brief (~50ms then white)', (tester) async {
+  testWidgets('mark RED flash is brief (~150ms then white)', (tester) async {
     app.main();
     await tester.pumpAndSettle();
 
@@ -193,18 +193,18 @@ void main() {
       const Offset(300, 0),
       1000,
     );
-    // Inside the 50ms flash window.
-    await tester.pump(const Duration(milliseconds: 20));
+    // Inside the 150ms flash window.
+    await tester.pump(const Duration(milliseconds: 50));
     expect(slateBg(tester), SlateColors.markRed.background,
-        reason: 'RED should be showing inside the 50ms flash window');
+        reason: 'RED should be showing inside the 150ms flash window');
 
-    // Past the 50ms flash window, before the 1000ms cadence.
-    await tester.pump(const Duration(milliseconds: 80)); // total ~100ms
+    // Past the 150ms flash window, before the 1000ms cadence.
+    await tester.pump(const Duration(milliseconds: 200)); // total ~250ms
     expect(slateBg(tester), SlateColors.markWhite.background,
         reason: 'should be back to WHITE between RED and GREEN');
 
     // Wait out the rest of the cadence so the test tears down cleanly.
-    await tester.pump(const Duration(milliseconds: 1100));
+    await tester.pump(const Duration(milliseconds: 1200));
     await tester.pumpAndSettle();
   });
 
@@ -217,13 +217,13 @@ void main() {
       const Offset(300, 0),
       1000,
     );
-    // Inside the GREEN flash window (1000–1050ms).
-    await tester.pump(const Duration(milliseconds: 1010));
+    // Inside the GREEN flash window (1000–1150ms).
+    await tester.pump(const Duration(milliseconds: 1050));
     expect(slateBg(tester), SlateColors.markGreen.background,
         reason: 'GREEN should be showing just after t=1000ms');
 
     // Past the GREEN flash window.
-    await tester.pump(const Duration(milliseconds: 80)); // total ~1090ms
+    await tester.pump(const Duration(milliseconds: 200)); // total ~1250ms
     expect(slateBg(tester), SlateColors.markWhite.background,
         reason: 'should be back to WHITE after the GREEN flash');
 
@@ -240,8 +240,8 @@ void main() {
       const Offset(300, 0),
       1000,
     );
-    // Past the 50ms RED flash, in the white gap before the green.
-    await tester.pump(const Duration(milliseconds: 200));
+    // Past the 150ms RED flash, in the white gap before the green.
+    await tester.pump(const Duration(milliseconds: 300));
     expect(slateBg(tester), SlateColors.markWhite.background,
         reason: 'baseline: in the white gap between RED and GREEN');
 

@@ -10,8 +10,12 @@ import 'widgets/slate_screen.dart';
 
 // Mark cadence (per design doc design/sharper-mark.md).
 // Audio events at t=0 and t=_markIntervalMs define the editor's sync
-// pins; the color flash is a sharp blip at each (single-frame at 24fps).
-const _flashDurationMs = 50;
+// pins; the color flash is a short blip at each. Default 150ms
+// (~3.6 frames at 24fps) — visible enough for the human eye, still
+// 3× shorter than the original 500ms. The Settings PR makes this
+// adjustable, with 50ms as the minimum for users who want a true
+// single-frame sync blip.
+const _flashDurationMs = 150;
 const _markIntervalMs = 1000;
 const _markCooldownMs = 50;
 
