@@ -19,19 +19,55 @@ delay, etc.).
 ## Access pattern
 
 Slate UI is gesture-heavy (tap-edit, vertical swipe inc/dec, horizontal
-swipe mark) and used in time-pressure on-set situations. A visible
-button — even a small one — is an accidental-tap hazard. Options
-considered:
+swipe mark) and used in time-pressure on-set situations. Two competing
+needs: **discoverability** (a feature no one finds is a feature that
+doesn't exist) and **accidental-tap resistance** (during a take is the
+worst possible time to open Settings).
 
-| Pattern                          | Verdict |
-|----------------------------------|---------|
-| Gear icon in a corner            | Tap target near other tap-edit fields → accidental opens during a take |
-| Long-press the title bar         | **Recommended.** Long-press isn't used anywhere else in the app; near-zero accidental rate; discoverable enough to mention in release notes once |
-| Two-finger tap anywhere          | Cute but easy to forget; iOS sometimes hijacks for accessibility |
-| Long-press the date/time box     | Same as title — fine but title reads more like "settings live here" |
-| Shake the device                 | Comical for a slate held still on a table |
+Options considered:
 
-**Decision:** long-press the **title bar** opens Settings.
+| Pattern                                  | Discoverable? | Accidental-tap risk |
+|------------------------------------------|---------------|---------------------|
+| Long-press title bar (no visual)         | Low — must read release notes | Near-zero |
+| Small gear icon in title bar, right edge | **High — users see it** | Low — small target, tap ≠ horizontal-drag, and the title bar is already tap-to-edit so no *new* surface area is made tappable |
+| Floating gear in screen corner           | High | Risk of being under a horizontal-swipe path; overlaps home indicator on iPhone landscape |
+| Two-finger tap anywhere                  | Low | Low, but iOS sometimes hijacks for accessibility |
+| Shake the device                         | Low | Zero, but unusable for a slate held still on a table |
+
+**Revised decision:** show a small **gear icon in the title bar's right
+edge** (tap to open Settings). Tapping anywhere else on the title still
+opens the title-edit screen — no behavior collision.
+
+Why the title bar specifically:
+
+- It's already a tap-target (tap = edit title), so the gear adds no
+  region of the slate that wasn't already tappable.
+- The title bar is ~11% of vertical height; a 40-dp gear at its right
+  edge consumes < 5% of the bar's width and stays clear of the title
+  text.
+- Horizontal swipes for *mark* start from anywhere; tapping a small
+  gear is gesturally distinct from sweeping across the screen, so the
+  gesture arena resolves them cleanly.
+- One small affordance is much cheaper to communicate than a hidden
+  gesture nobody finds.
+
+The gear renders in `colors.font` on the title bar's `colors.foreground`
+with `opacity: 0.6` — a subtle affordance, not a CTA competing with the
+title text.
+
+```
+┌─────────────────────────────────────────┐
+│ Title                                ⚙  │
+├─────────┬─────────┬─────────────────────┤
+│  Scene  │  Take   │     Date / Time     │
+...
+```
+
+**Accidental-open mitigation:** the gear is small (40-dp tap target
+inside its own `GestureDetector` with `HitTestBehavior.opaque` so taps
+are absorbed and don't bubble to the title's edit handler). If field
+testing shows on-set users still hit it by accident, a 300 ms
+tap-and-hold-to-confirm is a cheap follow-up.
 
 ## UI
 
@@ -162,8 +198,10 @@ Unit tests in `test/settings_test.dart` (new file):
 
 Integration tests added to `integration_test/app_test.dart`:
 
-1. **Long-press title → settings screen appears.** Assert
-   `find.text('Settings')` and the two sliders.
+1. **Tap gear icon → settings screen appears.** Assert
+   `find.text('Settings')` and the two sliders. Also assert that
+   tapping the *title text* (not the gear) still opens the title's
+   edit screen, not Settings.
 2. **Adjust flash slider → mark uses new duration.** Drag slider to
    200 ms, return to slate, fire mark, assert RED still showing at
    t=150ms (was white by then with the 50ms default).
@@ -175,9 +213,9 @@ Integration tests added to `integration_test/app_test.dart`:
 
 ## Rollout
 
-v3.1 release-notes line: *"New Settings page (long-press the title) —
-adjust the mark flash duration and the cadence between beeps for your
-preferred shooting framerate."*
+v3.1 release-notes line: *"New Settings page — tap the gear in the
+title bar to adjust the mark flash duration and the cadence between
+beeps for your preferred shooting framerate."*
 
 If a v3.2 follows for audio synthesis, it's a code-only change with no
 new UI — the existing flash slider grows to also control the synthesized
